@@ -1,10 +1,22 @@
 {
-  "name": "house-dodge",
+  "name": "brainrot-bay",
   "tree": {
     "$className": "DataModel",
     "Players": {
       "$properties": {
-        "CharacterAutoLoads": false
+        "CharacterAutoLoads": true
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Brightness": 2,
+        "Technology": "Voxel"
+      }
+    },
+    "SoundService": {},
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
       }
     },
     "ServerScriptService": {
@@ -27,41 +39,231 @@
         "$className": "Part",
         "$properties": {
           "Anchored": true,
-          "Color": [
-            0.38823,
-            0.37254,
-            0.38823
-          ],
-          "Locked": true,
-          "Position": [
-            0,
-            -10,
-            0
-          ],
-          "Size": [
-            512,
-            20,
-            512
-          ]
+          "Position": [0, -10, 0],
+          "Size": [512, 20, 512],
+          "Color": [0.4, 0.6, 0.3]
         }
-      }
-    },
-    "Lighting": {
-      "$properties": {
-        "Ambient": [
-          0,
-          0,
-          0
-        ],
-        "Brightness": 2,
-        "GlobalShadows": true,
-        "Outlines": false,
-        "Technology": "Voxel"
-      }
-    },
-    "SoundService": {
-      "$properties": {
-        "RespectFilteringEnabled": true
+      },
+      "Plaza": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Position": [0, 0.5, 0],
+          "Size": [100, 1, 100],
+          "Color": [0.8, 0.8, 0.8]
+        }
+      },
+      "Conveyor": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Position": [0, 0.6, -70],
+          "Size": [12, 1, 120],
+          "Color": [0.2, 0.2, 0.2]
+        }
+      },
+      "SpawnGate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Position": [0, 3, -130],
+          "Size": [14, 6, 2],
+          "Color": [0, 1, 0]
+        }
+      },
+      "DespawnGate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Position": [0, 3, -10],
+          "Size": [14, 6, 2],
+          "Color": [1, 0, 0]
+        }
+      },
+      "Bases": {
+        "$className": "Folder",
+        "RedBase": {
+          "$className": "Model",
+          "Pad": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [-40, 0.6, 0],
+              "Size": [20, 1, 20],
+              "Color": [1, 0, 0]
+            }
+          },
+          "Slot1": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-46, 1.2, -6], "Size": [4, 0.2, 4] } },
+          "Slot2": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-40, 1.2, -6], "Size": [4, 0.2, 4] } },
+          "Slot3": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-34, 1.2, -6], "Size": [4, 0.2, 4] } },
+          "Slot4": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-46, 1.2, 0], "Size": [4, 0.2, 4] } },
+          "Slot5": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-40, 1.2, 0], "Size": [4, 0.2, 4] } },
+          "Slot6": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-34, 1.2, 0], "Size": [4, 0.2, 4] } },
+          "Slot7": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-43, 1.2, 6], "Size": [4, 0.2, 4] } },
+          "Slot8": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-37, 1.2, 6], "Size": [4, 0.2, 4] } }
+        },
+        "BlueBase": {
+          "$className": "Model",
+          "Pad": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [40, 0.6, 0],
+              "Size": [20, 1, 20],
+              "Color": [0, 0, 1]
+            }
+          },
+          "Slot1": { "$className": "Part", "$properties": { "Anchored": true, "Position": [34, 1.2, -6], "Size": [4, 0.2, 4] } },
+          "Slot2": { "$className": "Part", "$properties": { "Anchored": true, "Position": [40, 1.2, -6], "Size": [4, 0.2, 4] } },
+          "Slot3": { "$className": "Part", "$properties": { "Anchored": true, "Position": [46, 1.2, -6], "Size": [4, 0.2, 4] } },
+          "Slot4": { "$className": "Part", "$properties": { "Anchored": true, "Position": [34, 1.2, 0], "Size": [4, 0.2, 4] } },
+          "Slot5": { "$className": "Part", "$properties": { "Anchored": true, "Position": [40, 1.2, 0], "Size": [4, 0.2, 4] } },
+          "Slot6": { "$className": "Part", "$properties": { "Anchored": true, "Position": [46, 1.2, 0], "Size": [4, 0.2, 4] } },
+          "Slot7": { "$className": "Part", "$properties": { "Anchored": true, "Position": [37, 1.2, 6], "Size": [4, 0.2, 4] } },
+          "Slot8": { "$className": "Part", "$properties": { "Anchored": true, "Position": [43, 1.2, 6], "Size": [4, 0.2, 4] } }
+        },
+        "GreenBase": {
+          "$className": "Model",
+          "Pad": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [0, 0.6, 60],
+              "Size": [20, 1, 20],
+              "Color": [0, 1, 0]
+            }
+          },
+          "Slot1": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-6, 1.2, 54], "Size": [4, 0.2, 4] } },
+          "Slot2": { "$className": "Part", "$properties": { "Anchored": true, "Position": [0, 1.2, 54], "Size": [4, 0.2, 4] } },
+          "Slot3": { "$className": "Part", "$properties": { "Anchored": true, "Position": [6, 1.2, 54], "Size": [4, 0.2, 4] } },
+          "Slot4": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-6, 1.2, 60], "Size": [4, 0.2, 4] } },
+          "Slot5": { "$className": "Part", "$properties": { "Anchored": true, "Position": [0, 1.2, 60], "Size": [4, 0.2, 4] } },
+          "Slot6": { "$className": "Part", "$properties": { "Anchored": true, "Position": [6, 1.2, 60], "Size": [4, 0.2, 4] } },
+          "Slot7": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-3, 1.2, 66], "Size": [4, 0.2, 4] } },
+          "Slot8": { "$className": "Part", "$properties": { "Anchored": true, "Position": [3, 1.2, 66], "Size": [4, 0.2, 4] } }
+        },
+        "YellowBase": {
+          "$className": "Model",
+          "Pad": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [0, 0.6, -60],
+              "Size": [20, 1, 20],
+              "Color": [1, 1, 0]
+            }
+          },
+          "Slot1": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-6, 1.2, -66], "Size": [4, 0.2, 4] } },
+          "Slot2": { "$className": "Part", "$properties": { "Anchored": true, "Position": [0, 1.2, -66], "Size": [4, 0.2, 4] } },
+          "Slot3": { "$className": "Part", "$properties": { "Anchored": true, "Position": [6, 1.2, -66], "Size": [4, 0.2, 4] } },
+          "Slot4": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-6, 1.2, -60], "Size": [4, 0.2, 4] } },
+          "Slot5": { "$className": "Part", "$properties": { "Anchored": true, "Position": [0, 1.2, -60], "Size": [4, 0.2, 4] } },
+          "Slot6": { "$className": "Part", "$properties": { "Anchored": true, "Position": [6, 1.2, -60], "Size": [4, 0.2, 4] } },
+          "Slot7": { "$className": "Part", "$properties": { "Anchored": true, "Position": [-3, 1.2, -54], "Size": [4, 0.2, 4] } },
+          "Slot8": { "$className": "Part", "$properties": { "Anchored": true, "Position": [3, 1.2, -54], "Size": [4, 0.2, 4] } }
+        }
+      },
+      "Environment": {
+        "$className": "Folder",
+        "Water": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Position": [120, -2, 0],
+            "Size": [150, 1, 300],
+            "Color": [0, 0.5, 0.8],
+            "Transparency": 0.3
+          }
+        },
+        "Beach": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Position": [70, -0.2, 0],
+            "Size": [40, 1, 300],
+            "Color": [0.94, 0.87, 0.65]
+          }
+        },
+        "Lighthouse": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Position": [140, 15, 100],
+            "Size": [10, 30, 10],
+            "Color": [1, 1, 1]
+          }
+        },
+        "Sign": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Position": [0, 3, 45],
+            "Size": [10, 4, 1],
+            "Color": [0.5, 0.3, 0.1]
+          }
+        },
+        "Cloud1": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Position": [-80, 50, -50],
+            "Size": [30, 8, 15],
+            "Color": [1, 1, 1],
+            "Transparency": 0.2
+          }
+        },
+        "Cloud2": {
+          "$className": "Part",
+          "$properties": {
+            "Anchored": true,
+            "Position": [80, 50, 50],
+            "Size": [35, 8, 20],
+            "Color": [1, 1, 1],
+            "Transparency": 0.2
+          }
+        },
+        "PalmTree1": {
+          "$className": "Model",
+          "Trunk": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [60, 4, -40],
+              "Size": [3, 8, 3],
+              "Color": [0.5, 0.35, 0.2]
+            }
+          },
+          "Leaves": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [60, 9, -40],
+              "Size": [8, 3, 8],
+              "Color": [0.1, 0.6, 0.1]
+            }
+          }
+        },
+        "PalmTree2": {
+          "$className": "Model",
+          "Trunk": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [60, 4, 40],
+              "Size": [3, 8, 3],
+              "Color": [0.5, 0.35, 0.2]
+            }
+          },
+          "Leaves": {
+            "$className": "Part",
+            "$properties": {
+              "Anchored": true,
+              "Position": [60, 9, 40],
+              "Size": [8, 3, 8],
+              "Color": [0.1, 0.6, 0.1]
+            }
+          }
+        }
       }
     }
   }
