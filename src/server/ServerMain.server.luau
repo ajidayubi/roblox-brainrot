@@ -118,6 +118,22 @@ task.spawn(function()
 	end
 end)
 
+-- Conveyor movement loop: brainrots ride the belt from the spawn gate
+-- (z=-130) to the despawn gate (z=-10). Without this, spawned brainrots
+-- pile up at the gate forever and the belt looks dead.
+task.spawn(function()
+	while true do
+		task.wait(0.1)
+		for _, model in ipairs(conveyorFolder:GetChildren()) do
+			if model:IsA("Model") then
+				pcall(function()
+					Spawner.moveAlongConveyor(model, 0.1, 4)
+				end)
+			end
+		end
+	end
+end)
+
 -- Earnings loop (once per second)
 task.spawn(function()
 	while true do

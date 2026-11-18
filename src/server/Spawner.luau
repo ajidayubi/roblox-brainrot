@@ -22,7 +22,7 @@ function Spawner.spawnBrainrot(conveyorFolder: Folder): Model
 	local body = Instance.new("Part")
 	body.Name = "Body"
 	body.Size = Vector3.new(4, 4, 4)
-	body.Position = Vector3.new(0, 3, -130)
+	body.Position = Vector3.new(math.random(-4, 4), 3, -130)
 	body.Anchored = true
 	body.Color = brainrotInfo.color
 	body.Parent = model
