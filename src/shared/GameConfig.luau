@@ -14,11 +14,11 @@ local GameConfig = {
 	START_CASH = 100,
 
 	-- Game pass asset IDs (Creator Dashboard, universe 10777475907).
-	-- 0 = pass not created yet; the shop button stays disabled until filled in.
+	-- Created 2026-11-18 ~13:41 WIB, all on sale. 0 = not created yet.
 	PASS_IDS = {
-		Cash2x = 0,
-		ExtraSlot = 0,
-		VIP = 0,
+		Cash2x = 2094339074,
+		ExtraSlot = 2093295021,
+		VIP = 2093175052,
 	} :: { [string]: number },
 
 	PASS_SHOP = {
