@@ -13,6 +13,7 @@ local Spawner = require(script.Parent:WaitForChild("Spawner"))
 local Threat = require(script.Parent:WaitForChild("Threat"))
 local BaseManager = require(script.Parent:WaitForChild("BaseManager"))
 local GamePasses = require(script.Parent:WaitForChild("GamePasses"))
+local DeveloperProducts = require(script.Parent:WaitForChild("DeveloperProducts"))
 
 -- RemoteEvents live in a "Remotes" folder under ReplicatedStorage, exactly
 -- where the client looks for them (a missing folder used to hang the client
@@ -86,6 +87,11 @@ GamePasses.init(function(player)
 	if state then
 		GamePasses.applyToState(player, state)
 	end
+end)
+
+-- Developer products: grant cash/boost on purchase (repeat-purchase).
+DeveloperProducts.init(function(player)
+	return playerStates[player]
 end)
 
 Players.PlayerRemoving:Connect(function(player)

@@ -193,7 +193,7 @@ shopCorner.Parent = shopButton
 
 local shopFrame = Instance.new("Frame")
 shopFrame.Name = "ShopFrame"
-shopFrame.Size = UDim2.new(0, 420, 0, 300)
+shopFrame.Size = UDim2.new(0, 420, 0, 560)
 shopFrame.Position = UDim2.new(0.5, -210, 0.5, -150)
 shopFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 shopFrame.BorderSizePixel = 0
@@ -209,7 +209,7 @@ shopTitle.Name = "ShopTitle"
 shopTitle.Size = UDim2.new(1, 0, 0, 40)
 shopTitle.BackgroundTransparency = 1
 shopTitle.Font = Enum.Font.FredokaOne
-shopTitle.Text = "TOKO GAME PASS"
+shopTitle.Text = "TOKO"
 shopTitle.TextColor3 = Color3.fromRGB(255, 220, 100)
 shopTitle.TextSize = 20
 shopTitle.Parent = shopFrame
@@ -468,6 +468,82 @@ local function setupShop()
 			buyButton.MouseButton1Click:Connect(function()
 				pcall(function()
 					MarketplaceService:PromptGamePassPurchase(player, passId)
+				end)
+			end)
+		end
+	end
+
+	local sectionLabel = Instance.new("TextLabel")
+	sectionLabel.Name = "SectionLabel"
+	sectionLabel.Size = UDim2.new(1, 0, 0, 30)
+	sectionLabel.BackgroundTransparency = 1
+	sectionLabel.Font = Enum.Font.FredokaOne
+	sectionLabel.Text = "BELI BERKALI-KALI"
+	sectionLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
+	sectionLabel.TextSize = 14
+	sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+	sectionLabel.LayoutOrder = 100
+	sectionLabel.Parent = shopList
+
+	for i, prod in ipairs(GameConfig.PRODUCT_SHOP) do
+		local prodId = GameConfig.PRODUCT_IDS[prod.key] or 0
+		local row = Instance.new("Frame")
+		row.Name = prod.key
+		row.Size = UDim2.new(1, 0, 0, 64)
+		row.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+		row.BorderSizePixel = 0
+		row.LayoutOrder = 100 + i
+		row.Parent = shopList
+
+		local rowCorner = Instance.new("UICorner")
+		rowCorner.CornerRadius = UDim.new(0, 8)
+		rowCorner.Parent = row
+
+		local nameLabel = Instance.new("TextLabel")
+		nameLabel.Size = UDim2.new(0.6, -8, 0, 28)
+		nameLabel.Position = UDim2.new(0, 10, 0, 4)
+		nameLabel.BackgroundTransparency = 1
+		nameLabel.Font = Enum.Font.FredokaOne
+		nameLabel.Text = prod.name
+		nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		nameLabel.TextSize = 16
+		nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+		nameLabel.Parent = row
+
+		local descLabel = Instance.new("TextLabel")
+		descLabel.Size = UDim2.new(0.6, -8, 0, 28)
+		descLabel.Position = UDim2.new(0, 10, 0, 32)
+		descLabel.BackgroundTransparency = 1
+		descLabel.Font = Enum.Font.Gotham
+		descLabel.Text = prod.desc
+		descLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+		descLabel.TextSize = 12
+		descLabel.TextXAlignment = Enum.TextXAlignment.Left
+		descLabel.Parent = row
+
+		local buyButton = Instance.new("TextButton")
+		buyButton.Name = "BuyButton"
+		buyButton.Size = UDim2.new(0, 130, 0, 44)
+		buyButton.Position = UDim2.new(1, -140, 0, 10)
+		buyButton.BackgroundColor3 = Color3.fromRGB(80, 200, 80)
+		buyButton.BorderSizePixel = 0
+		buyButton.Font = Enum.Font.FredokaOne
+		buyButton.Text = "BELI  R$" .. tostring(prod.price)
+		buyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		buyButton.TextSize = 15
+		buyButton.Parent = row
+
+		local buyCorner = Instance.new("UICorner")
+		buyCorner.CornerRadius = UDim.new(0, 8)
+		buyCorner.Parent = buyButton
+
+		if prodId == 0 then
+			buyButton.Text = "SEGERA"
+			buyButton.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+		else
+			buyButton.MouseButton1Click:Connect(function()
+				pcall(function()
+					MarketplaceService:PromptProductPurchase(player, prodId)
 				end)
 			end)
 		end

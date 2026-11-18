@@ -27,6 +27,20 @@ local GameConfig = {
 		{ key = "VIP", name = "VIP Brainrot", price = 299, desc = "2x uang + 1 slot + jalan lebih cepat." },
 	},
 	
+	-- Developer product asset IDs (Creator Dashboard, universe 10777475907).
+	-- Created 2026-11-18 ~14:31 WIB, all on sale. 0 = not created yet.
+	PRODUCT_IDS = {
+		Cash5000 = 3732998727,
+		Cash25000 = 3732998760,
+		Boost2x = 3732998797,
+	} :: { [string]: number },
+
+	PRODUCT_SHOP = {
+		{ key = "Cash5000", name = "Paket Uang 5.000", price = 49, desc = "+5.000 cash langsung." },
+		{ key = "Cash25000", name = "Paket Uang 25.000", price = 149, desc = "+25.000 cash langsung." },
+		{ key = "Boost2x", name = "Boost 2x 10 Menit", price = 79, desc = "Penghasilan 2x lipat 10 menit." },
+	},
+
 	UPGRADE_COSTS = {
 		WalkSpeed = 300,
 		Magnet = 500,

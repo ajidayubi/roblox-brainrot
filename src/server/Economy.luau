@@ -11,6 +11,7 @@ export type PlayerState = {
 	passCashMultiplier: number,
 	passExtraSlots: number,
 	vip: boolean,
+	boostUntil: number,
 	lockedUntil: number,
 	lockCooldownUntil: number,
 	upgrades: {
@@ -31,6 +32,7 @@ function Economy.newPlayerState(player: Player): PlayerState
 		passCashMultiplier = 1,
 		passExtraSlots = 0,
 		vip = false,
+		boostUntil = 0,
 		lockedUntil = 0,
 		lockCooldownUntil = 0,
 		upgrades = {
@@ -45,6 +47,16 @@ function Economy.addCash(state: PlayerState, amount: number)
 	state.cash += amount
 end
 
+-- Starts (or extends) the 2x earnings boost for durationSeconds.
+function Economy.applyBoost(state: PlayerState, durationSeconds: number)
+	local now = os.time()
+	if state.boostUntil > now then
+		state.boostUntil += durationSeconds
+	else
+		state.boostUntil = now + durationSeconds
+	end
+end
+
 function Economy.tickEarnings(state: PlayerState, brainrotsOnBase: { Model })
 	local totalEarnings = 0
 	for _, brainrotModel in ipairs(brainrotsOnBase) do
@@ -54,6 +66,11 @@ function Economy.tickEarnings(state: PlayerState, brainrotsOnBase: { Model })
 		end
 	end
 	if totalEarnings > 0 then
+		local boost = 1
+		if state.boostUntil > os.time() then
+			boost = 2
+		end
+		totalEarnings *= boost
 		Economy.addCash(state, totalEarnings)
 	end
 end
