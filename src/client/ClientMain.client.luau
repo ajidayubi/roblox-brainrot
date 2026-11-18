@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContextActionService = game:GetService("ContextActionService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
 
@@ -173,6 +174,76 @@ local upgradeCorner = Instance.new("UICorner")
 upgradeCorner.CornerRadius = UDim.new(0, 8)
 upgradeCorner.Parent = upgradeButton
 
+-- Shop Button (Top-Left) + Shop Panel (game passes)
+local shopButton = Instance.new("TextButton")
+shopButton.Name = "ShopButton"
+shopButton.Size = UDim2.new(0, 120, 0, 45)
+shopButton.Position = UDim2.new(0, 20, 0, 20)
+shopButton.BackgroundColor3 = Color3.fromRGB(220, 180, 40)
+shopButton.BorderSizePixel = 0
+shopButton.Font = Enum.Font.FredokaOne
+shopButton.Text = "SHOP"
+shopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+shopButton.TextSize = 18
+shopButton.Parent = screenGui
+
+local shopCorner = Instance.new("UICorner")
+shopCorner.CornerRadius = UDim.new(0, 8)
+shopCorner.Parent = shopButton
+
+local shopFrame = Instance.new("Frame")
+shopFrame.Name = "ShopFrame"
+shopFrame.Size = UDim2.new(0, 420, 0, 300)
+shopFrame.Position = UDim2.new(0.5, -210, 0.5, -150)
+shopFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+shopFrame.BorderSizePixel = 0
+shopFrame.Visible = false
+shopFrame.Parent = screenGui
+
+local shopFrameCorner = Instance.new("UICorner")
+shopFrameCorner.CornerRadius = UDim.new(0, 10)
+shopFrameCorner.Parent = shopFrame
+
+local shopTitle = Instance.new("TextLabel")
+shopTitle.Name = "ShopTitle"
+shopTitle.Size = UDim2.new(1, 0, 0, 40)
+shopTitle.BackgroundTransparency = 1
+shopTitle.Font = Enum.Font.FredokaOne
+shopTitle.Text = "TOKO GAME PASS"
+shopTitle.TextColor3 = Color3.fromRGB(255, 220, 100)
+shopTitle.TextSize = 20
+shopTitle.Parent = shopFrame
+
+local shopClose = Instance.new("TextButton")
+shopClose.Name = "ShopClose"
+shopClose.Size = UDim2.new(0, 30, 0, 30)
+shopClose.Position = UDim2.new(1, -38, 0, 5)
+shopClose.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+shopClose.BorderSizePixel = 0
+shopClose.Font = Enum.Font.FredokaOne
+shopClose.Text = "X"
+shopClose.TextColor3 = Color3.fromRGB(255, 255, 255)
+shopClose.TextSize = 16
+shopClose.Parent = shopFrame
+
+local shopCloseCorner = Instance.new("UICorner")
+shopCloseCorner.CornerRadius = UDim.new(0, 6)
+shopCloseCorner.Parent = shopClose
+
+local shopList = Instance.new("Frame")
+shopList.Name = "ShopList"
+shopList.Size = UDim2.new(1, -16, 1, -50)
+shopList.Position = UDim2.new(0, 8, 0, 45)
+shopList.BackgroundTransparency = 1
+shopList.BorderSizePixel = 0
+shopList.Parent = shopFrame
+
+local shopLayout = Instance.new("UIListLayout")
+shopLayout.FillDirection = Enum.FillDirection.Vertical
+shopLayout.SortOrder = Enum.SortOrder.LayoutOrder
+shopLayout.Padding = UDim.new(0, 10)
+shopLayout.Parent = shopList
+
 -- Bottom-Left Info Panel (Brainrot Guide)
 local guidePanel = Instance.new("Frame")
 guidePanel.Name = "GuidePanel"
@@ -330,9 +401,83 @@ local function buildGuidePanel()
 	end
 end
 
+local function setupShop()
+	shopButton.MouseButton1Click:Connect(function()
+		shopFrame.Visible = not shopFrame.Visible
+	end)
+	shopClose.MouseButton1Click:Connect(function()
+		shopFrame.Visible = false
+	end)
+
+	for i, pass in ipairs(GameConfig.PASS_SHOP) do
+		local passId = GameConfig.PASS_IDS[pass.key] or 0
+		local row = Instance.new("Frame")
+		row.Name = pass.key
+		row.Size = UDim2.new(1, 0, 0, 64)
+		row.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+		row.BorderSizePixel = 0
+		row.LayoutOrder = i
+		row.Parent = shopList
+
+		local rowCorner = Instance.new("UICorner")
+		rowCorner.CornerRadius = UDim.new(0, 8)
+		rowCorner.Parent = row
+
+		local nameLabel = Instance.new("TextLabel")
+		nameLabel.Size = UDim2.new(0.6, -8, 0, 28)
+		nameLabel.Position = UDim2.new(0, 10, 0, 4)
+		nameLabel.BackgroundTransparency = 1
+		nameLabel.Font = Enum.Font.FredokaOne
+		nameLabel.Text = pass.name
+		nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		nameLabel.TextSize = 16
+		nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+		nameLabel.Parent = row
+
+		local descLabel = Instance.new("TextLabel")
+		descLabel.Size = UDim2.new(0.6, -8, 0, 28)
+		descLabel.Position = UDim2.new(0, 10, 0, 32)
+		descLabel.BackgroundTransparency = 1
+		descLabel.Font = Enum.Font.Gotham
+		descLabel.Text = pass.desc
+		descLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+		descLabel.TextSize = 12
+		descLabel.TextXAlignment = Enum.TextXAlignment.Left
+		descLabel.Parent = row
+
+		local buyButton = Instance.new("TextButton")
+		buyButton.Name = "BuyButton"
+		buyButton.Size = UDim2.new(0, 130, 0, 44)
+		buyButton.Position = UDim2.new(1, -140, 0, 10)
+		buyButton.BackgroundColor3 = Color3.fromRGB(80, 200, 80)
+		buyButton.BorderSizePixel = 0
+		buyButton.Font = Enum.Font.FredokaOne
+		buyButton.Text = "BELI  R$" .. tostring(pass.price)
+		buyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		buyButton.TextSize = 15
+		buyButton.Parent = row
+
+		local buyCorner = Instance.new("UICorner")
+		buyCorner.CornerRadius = UDim.new(0, 8)
+		buyCorner.Parent = buyButton
+
+		if passId == 0 then
+			buyButton.Text = "SEGERA"
+			buyButton.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+		else
+			buyButton.MouseButton1Click:Connect(function()
+				pcall(function()
+					MarketplaceService:PromptGamePassPurchase(player, passId)
+				end)
+			end)
+		end
+	end
+end
+
 -- Initialize UI components
 buildGuidePanel()
 setupButtons()
+setupShop()
 bindCatchKey()
 
 -- Listen for Wave Warning Remote

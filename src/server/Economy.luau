@@ -8,6 +8,9 @@ export type PlayerState = {
 	cash: number,
 	rebirthLevel: number,
 	multiplier: number,
+	passCashMultiplier: number,
+	passExtraSlots: number,
+	vip: boolean,
 	lockedUntil: number,
 	lockCooldownUntil: number,
 	upgrades: {
@@ -25,6 +28,9 @@ function Economy.newPlayerState(player: Player): PlayerState
 		cash = GameConfig.START_CASH,
 		rebirthLevel = 0,
 		multiplier = 1,
+		passCashMultiplier = 1,
+		passExtraSlots = 0,
+		vip = false,
 		lockedUntil = 0,
 		lockCooldownUntil = 0,
 		upgrades = {
@@ -44,7 +50,7 @@ function Economy.tickEarnings(state: PlayerState, brainrotsOnBase: { Model })
 	for _, brainrotModel in ipairs(brainrotsOnBase) do
 		local rateVal = brainrotModel:FindFirstChild("EarningsRate") :: NumberValue?
 		if rateVal then
-			totalEarnings += math.floor(rateVal.Value * state.multiplier)
+			totalEarnings += math.floor(rateVal.Value * state.multiplier * state.passCashMultiplier)
 		end
 	end
 	if totalEarnings > 0 then

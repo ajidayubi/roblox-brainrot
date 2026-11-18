@@ -12,16 +12,27 @@ local Economy = require(script.Parent:WaitForChild("Economy"))
 local Spawner = require(script.Parent:WaitForChild("Spawner"))
 local Threat = require(script.Parent:WaitForChild("Threat"))
 local BaseManager = require(script.Parent:WaitForChild("BaseManager"))
+local GamePasses = require(script.Parent:WaitForChild("GamePasses"))
 
--- Create RemoteEvents under ReplicatedStorage if missing
+-- RemoteEvents live in a "Remotes" folder under ReplicatedStorage, exactly
+-- where the client looks for them (a missing folder used to hang the client
+-- forever at WaitForChild("Remotes")).
+local remotesFolder = ReplicatedStorage:FindFirstChild("Remotes")
+if not remotesFolder then
+	remotesFolder = Instance.new("Folder")
+	remotesFolder.Name = "Remotes"
+	remotesFolder.Parent = ReplicatedStorage
+end
+
+-- Create RemoteEvents under ReplicatedStorage/Remotes if missing
 local function getOrCreateRemoteEvent(name: string): RemoteEvent
-	local existing = ReplicatedStorage:FindFirstChild(name)
+	local existing = remotesFolder:FindFirstChild(name)
 	if existing and existing:IsA("RemoteEvent") then
 		return existing
 	end
 	local ev = Instance.new("RemoteEvent")
 	ev.Name = name
-	ev.Parent = ReplicatedStorage
+	ev.Parent = remotesFolder
 	return ev
 end
 
@@ -56,10 +67,24 @@ local playerCarried: { [Player]: Model } = {}
 Players.PlayerAdded:Connect(function(player)
 	local state = Economy.newPlayerState(player)
 	playerStates[player] = state
-	
+
+	-- Game pass perks (2x cash, extra slot, VIP speed) from prior purchases.
+	GamePasses.applyToState(player, state)
+	player.CharacterAdded:Connect(function()
+		GamePasses.applyToState(player, state)
+	end)
+
 	local baseModel = BaseManager.assignBase(player, basesFolder)
 	if baseModel then
 		playerBases[player] = baseModel
+	end
+end)
+
+-- Re-apply pass perks right after a purchase completes.
+GamePasses.init(function(player)
+	local state = playerStates[player]
+	if state then
+		GamePasses.applyToState(player, state)
 	end
 end)
 
@@ -138,8 +163,8 @@ catchBrainrotEvent.OnServerEvent:Connect(function(player, brainrotModel)
 	local state = playerStates[player]
 	if not state then return end
 	
-	-- Check capacity (max base slots + ExtraSlot upgrade)
-	local maxSlots = GameConfig.MAX_BASE_SLOTS + (state.upgrades.ExtraSlot or 0)
+	-- Check capacity (max base slots + ExtraSlot upgrade + ExtraSlot pass)
+	local maxSlots = GameConfig.MAX_BASE_SLOTS + (state.upgrades.ExtraSlot or 0) + (state.passExtraSlots or 0)
 	local currentBrainrots = BaseManager.listBaseBrainrots(baseModel)
 	if #currentBrainrots >= maxSlots then
 		return

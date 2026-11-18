@@ -12,6 +12,20 @@ local GameConfig = {
 	REBIRTH_MULTIPLIER_PER_LEVEL = 2,
 	MAX_BASE_SLOTS = 8,
 	START_CASH = 100,
+
+	-- Game pass asset IDs (Creator Dashboard, universe 10777475907).
+	-- 0 = pass not created yet; the shop button stays disabled until filled in.
+	PASS_IDS = {
+		Cash2x = 0,
+		ExtraSlot = 0,
+		VIP = 0,
+	} :: { [string]: number },
+
+	PASS_SHOP = {
+		{ key = "Cash2x", name = "2x Uang", price = 149, desc = "Penghasilan 2x lipat, selamanya." },
+		{ key = "ExtraSlot", name = "Slot Ekstra", price = 99, desc = "+1 slot brainrot permanen." },
+		{ key = "VIP", name = "VIP Brainrot", price = 299, desc = "2x uang + 1 slot + jalan lebih cepat." },
+	},
 	
 	UPGRADE_COSTS = {
 		WalkSpeed = 300,
