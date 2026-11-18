@@ -22,7 +22,7 @@ function Spawner.spawnBrainrot(conveyorFolder: Folder): Model
 	local body = Instance.new("Part")
 	body.Name = "Body"
 	body.Size = Vector3.new(4, 4, 4)
-	body.Position = Vector3.new(math.random(-4, 4), 3, -130)
+	body.Position = Vector3.new(-58, 3, 18 + math.random(-4, 4))
 	body.Anchored = true
 	body.Color = brainrotInfo.color
 	body.Parent = model
@@ -84,10 +84,10 @@ function Spawner.moveAlongConveyor(model: Model, dt: number, speed: number): boo
 	end
 	
 	local currentPos = body.Position
-	local newZ = currentPos.Z + (speed * dt)
-	body.Position = Vector3.new(currentPos.X, currentPos.Y, newZ)
+	local newX = currentPos.X + (speed * dt)
+	body.Position = Vector3.new(newX, currentPos.Y, currentPos.Z)
 	
-	if newZ >= -10 then
+	if newX >= 58 then
 		model:Destroy()
 		return true
 	end

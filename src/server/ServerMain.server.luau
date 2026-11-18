@@ -14,6 +14,7 @@ local Threat = require(script.Parent:WaitForChild("Threat"))
 local BaseManager = require(script.Parent:WaitForChild("BaseManager"))
 local GamePasses = require(script.Parent:WaitForChild("GamePasses"))
 local DeveloperProducts = require(script.Parent:WaitForChild("DeveloperProducts"))
+local Rides = require(script.Parent:WaitForChild("Rides"))
 
 -- RemoteEvents live in a "Remotes" folder under ReplicatedStorage, exactly
 -- where the client looks for them (a missing folder used to hang the client
@@ -42,7 +43,7 @@ local buyLockEvent = getOrCreateRemoteEvent("BuyLock")
 local rebirthEvent = getOrCreateRemoteEvent("Rebirth")
 local buyUpgradeEvent = getOrCreateRemoteEvent("BuyUpgrade")
 local waveWarningEvent = getOrCreateRemoteEvent("WaveWarning")
-
+local teleportEvent = getOrCreateRemoteEvent("TeleportToPlaza")
 -- Conveyor folder in Workspace
 local conveyorFolder = Workspace:FindFirstChild("Conveyor")
 if not conveyorFolder or not conveyorFolder:IsA("Folder") then
@@ -94,6 +95,9 @@ DeveloperProducts.init(function(player)
 	return playerStates[player]
 end)
 
+-- Amusement-park rides (ferris wheel, carousel, swings, coaster).
+Rides.init()
+
 Players.PlayerRemoving:Connect(function(player)
 	playerStates[player] = nil
 	local baseModel = playerBases[player]
@@ -119,7 +123,7 @@ task.spawn(function()
 end)
 
 -- Conveyor movement loop: brainrots ride the belt from the spawn gate
--- (z=-130) to the despawn gate (z=-10). Without this, spawned brainrots
+-- (x=-58) to the despawn gate (x=58). Without this, spawned brainrots
 -- pile up at the gate forever and the belt looks dead.
 task.spawn(function()
 	while true do
@@ -160,7 +164,7 @@ task.spawn(function()
 		for player, state in pairs(playerStates) do
 			local character = player.Character
 			local baseModel = playerBases[player]
-			if character and character:PrimaryPart and baseModel and baseModel.PrimaryPart then
+			if character and character.PrimaryPart and baseModel and baseModel.PrimaryPart then
 				local hit = Threat.shouldWaveHit(character.PrimaryPart.Position, baseModel.PrimaryPart.Position)
 				if hit then
 					local isLocked = Threat.isBaseLocked(state, now)
@@ -234,5 +238,17 @@ buyUpgradeEvent.OnServerEvent:Connect(function(player, upgradeName: string)
 	if Economy.canAfford(state, totalCost) then
 		state.cash -= totalCost
 		state.upgrades[upgradeName] = currentLevel + 1
+	end
+end)
+
+-- Handle TeleportToPlaza: one-tap return to the spawn/plaza. Server-side
+-- (PivotTo) so it always works, even if the client's own CFrame set is
+-- ignored or the tap lands on a panel.
+teleportEvent.OnServerEvent:Connect(function(player)
+	local character = player.Character
+	if character then
+		pcall(function()
+			character:PivotTo(CFrame.new(0, 5, 35))
+		end)
 	end
 end)
