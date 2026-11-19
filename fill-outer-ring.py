@@ -3,29 +3,29 @@ import os
 import sys
 
 def main():
-    project_path = "default.project.json"
-    if not os.path.exists(project_path):
-        print(f"Error: {project_path} not found.", file=sys.stderr)
+    target_path = "default.project.json"
+    if not os.path.exists(target_path):
+        print(f"Error: {target_path} not found.", file=sys.stderr)
         sys.exit(1)
 
-    with open(project_path, "r", encoding="utf-8") as f:
+    with open(target_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Check if FillTree0 already exists in Decor
+    # Check if FillTree0 already exists in Decor folder
     try:
-        decor = data["tree"]["Workspace"]["Decor"]
-        if "FillTree0" in decor:
+        decor_folder = data["tree"]["Workspace"]["Decor"]
+        if "FillTree0" in decor_folder:
             print("Error: 'FillTree0' already exists in the Decor folder.", file=sys.stderr)
             sys.exit(1)
     except KeyError:
         pass
 
-    # STEP 1: Update walls in Environment
+    # STEP 1: Taller border walls
     try:
-        env = data["tree"]["Workspace"]["Environment"]
+        env_folder = data["tree"]["Workspace"]["Environment"]
     except KeyError:
-        env = {}
-        data["tree"]["Workspace"]["Environment"] = env
+        env_folder = {}
+        data.setdefault("tree", {}).setdefault("Workspace", {})["Environment"] = env_folder
 
     walls = {
         "WallNorth": {"pos": [0, 10, -160], "size": [340, 20, 2], "color": [1, 0.3, 0.6]},
@@ -34,32 +34,29 @@ def main():
         "WallEast": {"pos": [170, 10, 10], "size": [2, 20, 340], "color": [1, 0.9, 0]}
     }
 
-    for name, info in walls.items():
-        if name not in env:
-            env[name] = {"$className": "Part"}
-        env[name]["$className"] = "Part"
-        if "$properties" not in env[name]:
-            env[name]["$properties"] = {}
-        env[name]["$properties"]["Anchored"] = True
-        env[name]["$properties"]["Position"] = info["pos"]
-        env[name]["$properties"]["Size"] = info["size"]
-        env[name]["$properties"]["Color"] = info["color"]
+    for wall_name, props in walls.items():
+        if wall_name in env_folder:
+            wall_node = env_folder[wall_name]
+            wall_node.setdefault("$properties", {})["Position"] = props["pos"]
+            wall_node["$properties"]["Size"] = props["size"]
+            # Keep existing color if present, else set it
+            if "Color" not in wall_node["$properties"]:
+                wall_node["$properties"]["Color"] = props["color"]
+        else:
+            env_folder[wall_name] = {
+                "$className": "Part",
+                "$properties": {
+                    "Anchored": True,
+                    "Position": props["pos"],
+                    "Size": props["size"],
+                    "Color": props["color"]
+                }
+            }
 
-    # Ensure Decor folder exists
-    if "Decor" not in data["tree"]["Workspace"]:
-        data["tree"]["Workspace"]["Decor"] = {"$className": "Folder"}
-    decor = data["tree"]["Workspace"]["Decor"]
-
-    # STEP 2: 60 decorations
-    flower_colors = [
-        [1, 0.9, 0],     # yellow
-        [1, 0.5, 0.8],   # pink
-        [0.2, 0.8, 1],   # cyan
-        [1, 0.2, 0.2],   # red
-        [0.6, 0.2, 0.8]  # purple
-    ]
-
-    coords = [
+    # STEP 2: 60 decorations filling outer ring
+    decor_folder = data["tree"]["Workspace"].setdefault("Decor", {"$className": "Folder"})
+    
+    positions = [
         (-50.3, -135.4), (-154.2, -28.0), (-107.1, 66.7), (-142.9, -148.0),
         (-93.3, -103.9), (26.6, -115.7), (-23.3, -133.6), (127.7, -92.2),
         (102.4, 29.2), (70.2, -131.6), (-32.5, -63.7), (86.2, -114.5),
@@ -77,14 +74,18 @@ def main():
         (60.4, -143.0), (155.9, -53.2), (-79.8, 14.9), (88.7, 18.6)
     ]
 
+    flower_colors = [
+        [1, 0.9, 0], [1, 0.5, 0.8], [0.2, 0.8, 1], [1, 0.2, 0.2], [0.6, 0.2, 0.8]
+    ]
     flower_count = 0
+
     for i in range(60):
         kind = i % 4
-        x, z = coords[i]
+        x, z = positions[i]
         if kind == 0:
             # Tree Model
-            model_name = f"FillTree{i}"
-            decor[model_name] = {
+            tree_name = f"FillTree{i}"
+            decor_folder[tree_name] = {
                 "$className": "Model",
                 "Trunk": {
                     "$className": "Part",
@@ -107,23 +108,23 @@ def main():
             }
         elif kind == 1:
             # Flower part
-            part_name = f"FillFlower{i}"
-            col = flower_colors[flower_count % len(flower_colors)]
+            flower_name = f"FillFlower{i}"
+            color = flower_colors[flower_count % len(flower_colors)]
             flower_count += 1
-            decor[part_name] = {
+            decor_folder[flower_name] = {
                 "$className": "Part",
                 "$properties": {
                     "Anchored": True,
                     "Position": [x, 0.8, z],
                     "Size": [5, 1.5, 5],
-                    "Color": col
+                    "Color": color
                 }
             }
         elif kind == 2:
-            # Lamp pole + ball
-            pole_name = f"FillLamp{i}"
+            # Lamp (Pole + Ball)
+            lamp_name = f"FillLamp{i}"
             ball_name = f"FillLampBall{i}"
-            decor[pole_name] = {
+            decor_folder[lamp_name] = {
                 "$className": "Part",
                 "$properties": {
                     "Anchored": True,
@@ -132,20 +133,20 @@ def main():
                     "Color": [0.2, 0.2, 0.2]
                 }
             }
-            decor[ball_name] = {
+            decor_folder[ball_name] = {
                 "$className": "Part",
                 "$properties": {
                     "Anchored": True,
-                    "Shape": "Ball",
                     "Position": [x, 6.5, z],
                     "Size": [2.5, 2.5, 2.5],
-                    "Color": [1, 0.9, 0.3]
+                    "Color": [1, 0.9, 0.3],
+                    "Shape": "Ball"
                 }
             }
         elif kind == 3:
-            # Bush part
-            part_name = f"FillBush{i}"
-            decor[part_name] = {
+            # Bush
+            bush_name = f"FillBush{i}"
+            decor_folder[bush_name] = {
                 "$className": "Part",
                 "$properties": {
                     "Anchored": True,
@@ -155,7 +156,7 @@ def main():
                 }
             }
 
-    # STEP 3: Two blue ponds in NE and NW corners
+    # STEP 3: Two blue ponds in north-east and north-west corners
     ponds = [
         ("PondNE", [120, 0.5, -110], [30, 1, 30], [0.2, 0.6, 1], None),
         ("PondNEBall", [120, 2, -110], [4, 4, 4], [1, 0.9, 0], "Ball"),
@@ -171,75 +172,88 @@ def main():
         }
         if shape:
             props["Shape"] = shape
-        decor[name] = {
+        decor_folder[name] = {
             "$className": "Part",
             "$properties": props
         }
 
-    # STEP 4: Eight colourful path tiles
+    # STEP 4: Eight colourful path tiles in outer ring
     paths = [
-        ("OuterPath1", [-110, 1.1, 0], [1, 0.2, 0.2]),
-        ("OuterPath2", [-80, 1.1, 0], [1, 0.5, 0]),
-        ("OuterPath3", [80, 1.1, 0], [0.2, 0.5, 1]),
-        ("OuterPath4", [110, 1.1, 0], [0.2, 0.8, 0.2]),
-        ("OuterPath5", [0, 1.1, -100], [1, 0.9, 0]),
-        ("OuterPath6", [0, 1.1, -130], [0.6, 0.2, 0.8]),
-        ("OuterPath7", [-110, 1.1, -80], [1, 0.5, 0.8]),
-        ("OuterPath8", [110, 1.1, -80], [0.2, 0.8, 1])
+        ("OuterPath1", [-110, 1.1, 0], [8, 0.2, 8], [1, 0.2, 0.2]),
+        ("OuterPath2", [-80, 1.1, 0], [8, 0.2, 8], [1, 0.5, 0]),
+        ("OuterPath3", [80, 1.1, 0], [8, 0.2, 8], [0.2, 0.5, 1]),
+        ("OuterPath4", [110, 1.1, 0], [8, 0.2, 8], [0.2, 0.8, 0.2]),
+        ("OuterPath5", [0, 1.1, -100], [8, 0.2, 8], [1, 0.9, 0]),
+        ("OuterPath6", [0, 1.1, -130], [8, 0.2, 8], [0.6, 0.2, 0.8]),
+        ("OuterPath7", [-110, 1.1, -80], [8, 0.2, 8], [1, 0.5, 0.8]),
+        ("OuterPath8", [110, 1.1, -80], [8, 0.2, 8], [0.2, 0.8, 1])
     ]
-    for name, pos, color in paths:
-        decor[name] = {
+    for name, pos, size, color in paths:
+        decor_folder[name] = {
             "$className": "Part",
             "$properties": {
                 "Anchored": True,
                 "Position": pos,
-                "Size": [8, 0.2, 8],
+                "Size": size,
                 "Color": color
             }
         }
 
-    # Custom serializer to format number lists on a single line
-    def custom_dump(obj, indent=2):
-        def _to_json(val, level=0):
-            ind = " " * (indent * level)
-            ind_inner = " " * (indent * (level + 1))
+    # Custom compact JSON formatting with single-line number lists
+    class CompactEncoder(json.JSONEncoder):
+        def encode(self, o):
+            return self._format_value(o, 0)
+
+        def _format_value(self, val, indent_level):
+            indent = "  " * indent_level
+            next_indent = "  " * (indent_level + 1)
             
-            if isinstance(val, bool):
+            if isinstance(val, dict):
+                if not val:
+                    return "{}"
+                items = []
+                for k, v in val.items():
+                    formatted_v = self._format_value(v, indent_level + 1)
+                    items.append(f'{next_indent}"{k}": {formatted_v}')
+                return "{\n" + ",\n".join(items) + "\n" + indent + "}"
+            elif isinstance(val, list):
+                # Check if list contains only numbers (or is empty)
+                if all(isinstance(x, (int, float)) for x in val):
+                    # Format numbers compactly
+                    num_strs = []
+                    for x in val:
+                        if isinstance(x, float):
+                            # format float cleanly
+                            s = f"{x:g}" if x == int(x) or abs(x) >= 0.001 else str(x)
+                            num_strs.append(s)
+                        else:
+                            num_strs.append(str(x))
+                    return "[" + ", ".join(num_strs) + "]"
+                else:
+                    if not val:
+                        return "[]"
+                    items = []
+                    for x in val:
+                        formatted_x = self._format_value(x, indent_level + 1)
+                        items.append(f'{next_indent}{formatted_x}')
+                    return "[\n" + ",\n".join(items) + "\n" + indent + "]"
+            elif isinstance(val, str):
+                return json.dumps(val)
+            elif isinstance(val, bool):
                 return "true" if val else "false"
             elif val is None:
                 return "null"
             elif isinstance(val, (int, float)):
                 return str(val)
-            elif isinstance(val, str):
-                return json.dumps(val)
-            elif isinstance(val, list):
-                # Check if list contains only numbers
-                if all(isinstance(x, (int, float)) for x in val):
-                    # format on single line
-                    items_str = ", ".join(str(x) for x in val)
-                    return f"[{items_str}]"
-                else:
-                    parts = [_to_json(item, level + 1) for item in val]
-                    return "[\n" + ",\n".join(ind_inner + p for p in parts) + "\n" + ind + "]"
-            elif isinstance(val, dict):
-                if not val:
-                    return "{}"
-                parts = []
-                for k, v in val.items():
-                    key_str = json.dumps(k)
-                    val_str = _to_json(v, level + 1)
-                    parts.append(f"{ind_inner}{key_str}: {val_str}")
-                return "{\n" + ",\n".join(parts) + "\n" + ind + "}"
             else:
                 return json.dumps(val)
 
-        return _to_json(obj, 0)
+    formatted_json = CompactEncoder().encode(data) + "\n"
 
-    output_str = custom_dump(data, indent=2) + "\n"
-    with open(project_path, "w", encoding="utf-8") as f:
-        f.write(output_str)
+    with open(target_path, "w", encoding="utf-8") as f:
+        f.write(formatted_json)
 
-    print(f"Successfully updated {project_path}")
+    print("Successfully updated default.project.json")
 
 if __name__ == "__main__":
     main()

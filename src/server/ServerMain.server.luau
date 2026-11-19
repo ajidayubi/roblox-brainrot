@@ -43,7 +43,8 @@ local buyLockEvent = getOrCreateRemoteEvent("BuyLock")
 local rebirthEvent = getOrCreateRemoteEvent("Rebirth")
 local buyUpgradeEvent = getOrCreateRemoteEvent("BuyUpgrade")
 local waveWarningEvent = getOrCreateRemoteEvent("WaveWarning")
-local teleportEvent = getOrCreateRemoteEvent("TeleportToPlaza")
+local teleportToPlazaEvent = getOrCreateRemoteEvent("TeleportToPlaza")
+
 -- Conveyor folder in Workspace
 local conveyorFolder = Workspace:FindFirstChild("Conveyor")
 if not conveyorFolder or not conveyorFolder:IsA("Folder") then
@@ -94,9 +95,6 @@ end)
 DeveloperProducts.init(function(player)
 	return playerStates[player]
 end)
-
--- Amusement-park rides (ferris wheel, carousel, swings, coaster).
-Rides.init()
 
 Players.PlayerRemoving:Connect(function(player)
 	playerStates[player] = nil
@@ -241,10 +239,11 @@ buyUpgradeEvent.OnServerEvent:Connect(function(player, upgradeName: string)
 	end
 end)
 
--- Handle TeleportToPlaza: one-tap return to the spawn/plaza. Server-side
--- (PivotTo) so it always works, even if the client's own CFrame set is
--- ignored or the tap lands on a panel.
-teleportEvent.OnServerEvent:Connect(function(player)
+-- Initialize park rides animation
+Rides.init()
+
+-- Handles the plaza teleport: one-tap return to the spawn/plaza, done server-side so it always works even if the client's own move is ignored or the tap lands on a panel
+teleportToPlazaEvent.OnServerEvent:Connect(function(player)
 	local character = player.Character
 	if character then
 		pcall(function()

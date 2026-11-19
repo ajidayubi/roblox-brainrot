@@ -2,39 +2,32 @@ import json
 import os
 import sys
 
-PROJECT_PATH = "default.project.json"
-
 def main():
-    if not os.path.exists(PROJECT_PATH):
-        print(f"Error: {PROJECT_PATH} does not exist.", file=sys.stderr)
+    project_path = "default.project.json"
+    if not os.path.exists(project_path):
+        print(f"Error: {project_path} not found.", file=sys.stderr)
         sys.exit(1)
 
-    with open(PROJECT_PATH, "r", encoding="utf-8") as f:
+    with open(project_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Check for GroundTile1 in Decor folder under Workspace
-    try:
-        workspace = data["tree"]["Workspace"]
-        decor = workspace.get("Decor", {})
-        if "GroundTile1" in decor:
-            print("Error: GroundTile1 already exists in the Decor folder.", file=sys.stderr)
-            sys.exit(1)
-    except KeyError:
-        pass
+    # Navigate tree -> Workspace -> Decor
+    tree = data.setdefault("tree", {})
+    workspace = tree.setdefault("Workspace", {})
+    decor = workspace.setdefault("Decor", {})
 
-    # Ensure Decor folder exists in Workspace
-    if "Workspace" not in data["tree"]:
-        data["tree"]["Workspace"] = {"$className": "Workspace"}
-    if "Decor" not in data["tree"]["Workspace"]:
-        data["tree"]["Workspace"]["Decor"] = {"$className": "Folder"}
+    # Check if GroundTile1 already exists in Decor
+    if "GroundTile1" in decor:
+        print("Error: GroundTile1 already exists in the Decor folder.", file=sys.stderr)
+        sys.exit(1)
 
-    decor_folder = data["tree"]["Workspace"]["Decor"]
+    # STEP 1: Shrink Baseplate size to [400, 20, 400]
+    baseplate = workspace.get("Baseplate")
+    if baseplate and isinstance(baseplate, dict):
+        props = baseplate.setdefault("$properties", {})
+        props["Size"] = [400, 20, 400]
 
-    # STEP 1 — Shrink Baseplate size to (400, 20, 400)
-    if "Baseplate" in data["tree"]["Workspace"]:
-        data["tree"]["Workspace"]["Baseplate"]["$properties"]["Size"] = [400, 20, 400]
-
-    # STEP 2 — 48 big pastel ground tiles (GroundTile1 to GroundTile48)
+    # STEP 2: Forty-eight big pastel ground tiles in Decor
     pastel_cycle = [
         [0.7, 0.9, 0.6],    # light green
         [0.95, 0.9, 0.7],   # cream
@@ -60,8 +53,9 @@ def main():
     ]
 
     for i, (x, z) in enumerate(tile_coords, start=1):
+        tile_name = f"GroundTile{i}"
         color = pastel_cycle[(i - 1) % len(pastel_cycle)]
-        decor_folder[f"GroundTile{i}"] = {
+        decor[tile_name] = {
             "$className": "Part",
             "$properties": {
                 "Anchored": True,
@@ -71,7 +65,7 @@ def main():
             }
         }
 
-    # STEP 3 — 14 big trees in outer ring
+    # STEP 3: Fourteen big trees in Decor
     tree_names = [
         "BigTree0", "BigTree1", "BigTree2", "BigTree10", "BigTree11",
         "BigTree14", "BigTree15", "BigTree16", "BigTree17", "BigTree18",
@@ -96,7 +90,7 @@ def main():
 
     for name in tree_names:
         x, z = tree_coords[name]
-        decor_folder[name] = {
+        decor[name] = {
             "$className": "Model",
             "Trunk": {
                 "$className": "Part",
@@ -118,27 +112,27 @@ def main():
             }
         }
 
-    # STEP 4 — 15 big flowers in outer ring
+    # STEP 4: Fifteen big flowers in Decor
     flower_data = [
-        ("BigFlower0", (74.2, 30.0), [1.0, 0.8, 0.85]),
-        ("BigFlower8", (-63.0, 49.3), [1.0, 0.95, 0.6]),
-        ("BigFlower9", (-92.1, 39.1), [0.85, 0.75, 0.95]),
-        ("BigFlower10", (-118.8, 16.7), [0.7, 0.9, 0.6]),
-        ("BigFlower11", (-139.0, -17.1), [0.95, 0.9, 0.7]),
-        ("BigFlower13", (-79.9, -60.2), [0.75, 0.85, 1.0]),
-        ("BigFlower14", (-73.9, -94.6), [1.0, 0.95, 0.6]),
-        ("BigFlower15", (-54.7, -128.9), [0.85, 0.75, 0.95]),
-        ("BigFlower16", (-11.1, -79.2), [0.7, 0.9, 0.6]),
-        ("BigFlower17", (12.2, -99.3), [0.95, 0.9, 0.7]),
-        ("BigFlower18", (45.0, -111.3), [1.0, 0.8, 0.85]),
-        ("BigFlower19", (84.3, -111.8), [0.75, 0.85, 1.0]),
-        ("BigFlower21", (92.1, -39.1), [0.85, 0.75, 0.95]),
-        ("BigFlower22", (118.8, -16.7), [0.7, 0.9, 0.6]),
-        ("BigFlower23", (139.0, 17.1), [0.95, 0.9, 0.7])
+        ("BigFlower0", 74.2, 30.0, [1.0, 0.8, 0.85]),
+        ("BigFlower8", -63.0, 49.3, [1.0, 0.95, 0.6]),
+        ("BigFlower9", -92.1, 39.1, [0.85, 0.75, 0.95]),
+        ("BigFlower10", -118.8, 16.7, [0.7, 0.9, 0.6]),
+        ("BigFlower11", -139.0, -17.1, [0.95, 0.9, 0.7]),
+        ("BigFlower13", -79.9, -60.2, [0.75, 0.85, 1.0]),
+        ("BigFlower14", -73.9, -94.6, [1.0, 0.95, 0.6]),
+        ("BigFlower15", -54.7, -128.9, [0.85, 0.75, 0.95]),
+        ("BigFlower16", -11.1, -79.2, [0.7, 0.9, 0.6]),
+        ("BigFlower17", 12.2, -99.3, [0.95, 0.9, 0.7]),
+        ("BigFlower18", 45.0, -111.3, [1.0, 0.8, 0.85]),
+        ("BigFlower19", 84.3, -111.8, [0.75, 0.85, 1.0]),
+        ("BigFlower21", 92.1, -39.1, [0.85, 0.75, 0.95]),
+        ("BigFlower22", 118.8, -16.7, [0.7, 0.9, 0.6]),
+        ("BigFlower23", 139.0, 17.1, [0.95, 0.9, 0.7])
     ]
 
-    for name, (x, z), color in flower_data:
-        decor_folder[name] = {
+    for name, x, z, color in flower_data:
+        decor[name] = {
             "$className": "Part",
             "$properties": {
                 "Anchored": True,
@@ -148,38 +142,39 @@ def main():
             }
         }
 
-    # Custom serializer to keep lists of numbers on a single line
-    def custom_dump(obj, indent=2):
-        def _to_str(o, level=0):
-            ind = " " * (indent * level)
-            ind_next = " " * (indent * (level + 1))
-            if isinstance(o, dict):
-                if not o:
-                    return "{}"
-                items = []
-                for k, v in o.items():
-                    items.append(f'{ind_next}{json.dumps(k)}: {_to_str(v, level + 1)}')
-                return "{\n" + ",\n".join(items) + f"\n{ind}}}"
-            elif isinstance(o, list):
-                if all(isinstance(x, (int, float)) for x in o):
-                    return json.dumps(o)
-                if not o:
-                    return "[]"
-                items = []
-                for item in o:
-                    items.append(f'{ind_next}{_to_str(item, level + 1)}')
-                return "[\n" + ",\n".join(items) + f"\n{ind}]"
+    # Save back with custom formatting
+    formatted_json = compact_json_dump(data)
+    with open(project_path, "w", encoding="utf-8") as f:
+        f.write(formatted_json)
+        f.write("\n")
+
+    print(f"Successfully updated {project_path}")
+
+def compact_json_dump(obj):
+    def format_val(v, indent_level):
+        indent = "  " * indent_level
+        if isinstance(v, dict):
+            if not v:
+                return "{}"
+            item_lines = []
+            for k, val in v.items():
+                # Check if k is empty string or something weird from old formatting bug
+                item_lines.append(f'{indent}  {json.dumps(k)}: {format_val(val, indent_level + 1)}')
+            return "{\n" + ",\n".join(item_lines) + f"\n{indent}}}"
+        elif isinstance(v, list):
+            if v and all(isinstance(x, (int, float)) for x in v):
+                return json.dumps(v)
             else:
-                return json.dumps(o)
+                if not v:
+                    return "[]"
+                item_lines = []
+                for val in v:
+                    item_lines.append(f'{indent}  {format_val(val, indent_level + 1)}')
+                return "[\n" + ",\n".join(item_lines) + f"\n{indent}]"
+        else:
+            return json.dumps(v)
 
-        return _to_str(obj, 0) + "\n"
-
-    output_content = custom_dump(data, indent=2)
-
-    with open(PROJECT_PATH, "w", encoding="utf-8") as f:
-        f.write(output_content)
-
-    print("Successfully updated default.project.json")
+    return format_val(obj, 0)
 
 if __name__ == "__main__":
     main()

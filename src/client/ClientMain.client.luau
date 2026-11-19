@@ -13,7 +13,7 @@ local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui") :: PlayerGui
 
--- On mobile, pinch-zoom can fly hundreds of studs out making the map look like empty green
+-- On mobile, pinch-zoom can fly hundreds of studs out and the whole map looks like empty green
 player.CameraMaxZoomDistance = 70
 player.CameraMinZoomDistance = 8
 
@@ -67,18 +67,18 @@ rateLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 rateLabel.TextSize = 18
 rateLabel.Parent = cashPanel
 
--- Version label sitting under the cash panel, so we always know which build is live
-local versionLabel = Instance.new("TextLabel")
-versionLabel.Name = "VersionLabel"
-versionLabel.Size = UDim2.new(0, 240, 0, 20)
-versionLabel.Position = UDim2.new(1, -260, 0, 92)
-versionLabel.BackgroundTransparency = 1
-versionLabel.Font = Enum.Font.FredokaOne
-versionLabel.Text = "v25"
-versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-versionLabel.TextSize = 14
-versionLabel.TextXAlignment = Enum.TextXAlignment.Right
-versionLabel.Parent = screenGui
+	-- Version label sitting under the cash panel so we always know which build is live
+	local versionLabel = Instance.new("TextLabel")
+	versionLabel.Name = "VersionLabel"
+	versionLabel.Size = UDim2.new(0, 240, 0, 20)
+	versionLabel.Position = UDim2.new(1, -260, 0, 92)
+	versionLabel.BackgroundTransparency = 1
+	versionLabel.Font = Enum.Font.FredokaOne
+	versionLabel.Text = "v25"
+	versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	versionLabel.TextSize = 14
+	versionLabel.TextXAlignment = Enum.TextXAlignment.Right
+	versionLabel.Parent = screenGui
 
 -- Title (Top-Center)
 local titleFrame = Instance.new("Frame")
@@ -192,7 +192,7 @@ local upgradeCorner = Instance.new("UICorner")
 upgradeCorner.CornerRadius = UDim.new(0, 8)
 upgradeCorner.Parent = upgradeButton
 
--- Shop Button (sits below the Roblox mobile top bar) + Shop Panel (game passes)
+-- Shop Button (below the Roblox mobile top bar) + Shop Panel (game passes)
 local shopButton = Instance.new("TextButton")
 shopButton.Name = "ShopButton"
 shopButton.Size = UDim2.new(0, 120, 0, 45)
@@ -262,14 +262,14 @@ shopLayout.SortOrder = Enum.SortOrder.LayoutOrder
 shopLayout.Padding = UDim.new(0, 10)
 shopLayout.Parent = shopList
 
--- Guide Toggle Button
+-- Toggle button for guide panel
 local guideToggle = Instance.new("TextButton")
 guideToggle.Name = "GuideToggle"
 guideToggle.Size = UDim2.new(0, 110, 0, 40)
-guideToggle.Position = UDim2.new(0, 20, 1, -60)
+guideToggle.Position = UDim2.new(0, 20, 1, -100)
 guideToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
 guideToggle.BorderSizePixel = 0
-guideToggle.Font = Enum.Font.FredokaOne
+guideToggle.FontFace = Font.fromName("FredokaOne")
 guideToggle.Text = "GUIDE"
 guideToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
 guideToggle.TextSize = 15
@@ -278,6 +278,37 @@ guideToggle.Parent = screenGui
 local guideToggleCorner = Instance.new("UICorner")
 guideToggleCorner.CornerRadius = UDim.new(0, 8)
 guideToggleCorner.Parent = guideToggle
+
+-- One tap teleports player back to spawn/plaza so nobody ever gets lost on empty green baseplate again
+-- Button sits top-centre under title so it is never covered by the GUIDE panel
+local plazaButton = Instance.new("TextButton")
+plazaButton.Name = "PlazaButton"
+plazaButton.Size = UDim2.new(0, 110, 0, 40)
+plazaButton.Position = UDim2.new(0.5, -55, 0, 80)
+plazaButton.BackgroundColor3 = Color3.fromRGB(220, 60, 120)
+plazaButton.BorderSizePixel = 0
+plazaButton.FontFace = Font.fromName("FredokaOne")
+plazaButton.Text = "PLAZA"
+plazaButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+plazaButton.TextSize = 15
+plazaButton.Parent = screenGui
+
+local plazaCorner = Instance.new("UICorner")
+plazaCorner.CornerRadius = UDim.new(0, 8)
+plazaCorner.Parent = plazaButton
+
+plazaButton.MouseButton1Click:Connect(function()
+	local char = player.Character
+	if char then
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.CFrame = CFrame.new(0, 5, 35)
+		end
+	end
+	pcall(function()
+		teleportToPlazaEvent:FireServer()
+	end)
+end)
 
 -- Bottom-Left Info Panel (Brainrot Guide)
 local guidePanel = Instance.new("Frame")
@@ -292,37 +323,6 @@ guidePanel.Parent = screenGui
 
 guideToggle.MouseButton1Click:Connect(function()
 	guidePanel.Visible = not guidePanel.Visible
-end)
-
--- One tap teleports the player back to the spawn/plaza so nobody ever gets lost on the empty green baseplate again
--- The button sits top-centre under the title so it is never covered by the GUIDE panel (the old bottom-left spot sat on top of the panel's scroll area and taps there got swallowed)
-local plazaButton = Instance.new("TextButton")
-plazaButton.Name = "PlazaButton"
-plazaButton.Size = UDim2.new(0, 110, 0, 40)
-plazaButton.Position = UDim2.new(0.5, -55, 0, 80)
-plazaButton.BackgroundColor3 = Color3.fromRGB(220, 60, 120)
-plazaButton.BorderSizePixel = 0
-plazaButton.Font = Enum.Font.FredokaOne
-plazaButton.Text = "PLAZA"
-plazaButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-plazaButton.TextSize = 15
-plazaButton.Parent = screenGui
-
-local plazaCorner = Instance.new("UICorner")
-plazaCorner.CornerRadius = UDim.new(0, 8)
-plazaCorner.Parent = plazaButton
-
-plazaButton.MouseButton1Click:Connect(function()
-	local char = player.Character
-	if char then
-		local root = char:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if root then
-			root.CFrame = CFrame.new(0, 5, 35)
-		end
-	end
-	pcall(function()
-		teleportToPlazaEvent:FireServer()
-	end)
 end)
 
 local guideCorner = Instance.new("UICorner")
