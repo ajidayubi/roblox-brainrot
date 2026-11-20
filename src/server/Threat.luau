@@ -1,4 +1,6 @@
 --!strict
+-- Brainrot Bay v25 — Threat: base lock and threat timers.
+-- Round-6 witness note, 2026-11-20.
 
 local GameConfig = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("GameConfig"))
 
